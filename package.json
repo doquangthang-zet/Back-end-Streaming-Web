@@ -1,0 +1,32 @@
+{
+  "name": "back-end-streaming-web",
+  "version": "1.0.0",
+  "description": "This is the server folder for a music streaming website project, named muzikland",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doquangthang-zet/Back-end-Streaming-Web.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/doquangthang-zet/Back-end-Streaming-Web/issues"
+  },
+  "homepage": "https://github.com/doquangthang-zet/Back-end-Streaming-Web#readme",
+  "dependencies": {
+    "body-parser": "^1.20.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "firebase-admin": "^11.3.0",
+    "mongoose": "^6.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
