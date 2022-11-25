@@ -6,7 +6,7 @@ require("dotenv/config");
 
 const app = express();
 //Testing port
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 // var url = 'mongodb+srv://admin:admin@cluster0.tcmtgga.mongodb.net/?retryWrites=true&w=majority';
 //create a connection to database

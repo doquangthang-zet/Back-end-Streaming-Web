@@ -11,24 +11,25 @@ const UserSchema = mongoose.Schema({
     },
     imageURL: {
         type: String,
-        required: true
+        required: false
     },
     user_id: {
         type: String,
-        required: true
+        required: false
     },
     email_verified: {
         type: Boolean,
-        required: true
+        required: false
     },
     role: {
         type: String,
-        required: true
+        required: false
     },
     auth_time: {
         type: String,
-        required: true
+        required: false
     },
+    password: String,
 },
 {timestamps: true}
 )
