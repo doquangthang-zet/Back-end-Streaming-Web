@@ -1,7 +1,25 @@
-
 const router = require("express").Router();
+
+// User models
 const user = require("../models/users");
+
+// User verification model
+const UserVerification = require("../models/UserVerification");
+
+//Email handler
+const nodemailer = require("nodemailer");
+
+// Unique string
+const {v4: uuidv4} = require("uuid");
+
+// .env config
+require("dotenv").config();
+
+//firebase admin
 const admin = require("../config/firebase.config");
+
+// Static verified page
+const path = require("path");
 
 // Regex
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
@@ -12,7 +30,27 @@ const usernameRegex = /^[A-Za-z0-9._-\s]{8,16}$/
 const bcrypt = require("bcrypt");
 // const User = require("../../ClubHub-Back-end/app/models/auth/user.model");
 
-//login api
+
+//Nodemailer stuff
+let transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.AUTH_EMAIL,
+        pass: process.env.AUTH_PASSWORD,
+    }
+})
+
+// Testing success
+transporter.verify((err, success) => {
+    if(err) {
+        console.log(err);
+    } else {
+        console.log("Ready for message!");
+        console.log("Success");
+    }
+})
+
+//login api using gg account
 router.get("/login", async(req, res) => {
     if (!req.headers.authorization) {
         return res.status(500).send({message : "Invalid token"});
@@ -29,7 +67,7 @@ router.get("/login", async(req, res) => {
             if(!userExist) {
                 newUserData(decodeValue, req, res);
             } else {
-                return res.send("Need to update")
+                updateUserData(decodeValue, req, res);
             }
         }
     } catch (err) { 
@@ -37,6 +75,7 @@ router.get("/login", async(req, res) => {
     }
 })
 
+// Function to create new user
 const newUserData = async (decodeValue, req, res) => {
     const newUser = new user({
         name: decodeValue.name,
@@ -51,6 +90,26 @@ const newUserData = async (decodeValue, req, res) => {
     try {
         const savedUser = await newUser.save();
         res.status(200).send({user: savedUser});
+    } catch (err) {
+        res.status(400).send({success: false, msg: err});
+    }
+}
+
+//Function to update user data
+const updateUserData = async (decodeValue, req, res) => {
+    const filter = {user_id : decodeValue.user_id};
+    const options = {
+        upsert : true,
+        new : true
+    }
+
+    try{
+        const result = await user.findOneAndUpdate(
+            filter,
+            {auth_time: decodeValue.auth_time},
+            options
+        );
+        res.status(200).send({user : result})
     } catch (err) {
         res.status(400).send({success: false, msg: err});
     }
@@ -102,17 +161,22 @@ router.post("/signup", (req, res) => {
                     const newUser = new user({
                         name: name,
                         email: email,
-                        imageURL: "",
+                        imageURL: "../default_avatar.png",
+                        email_verified: false,
                         role: "member",
                         password: hashedPassword
                     });
 
                     newUser.save().then(result => {
-                        res.json({
-                            status: "Success",
-                            message: "Signup successful!",
-                            data: result
-                        })
+                        // Handle account verification
+                        console.log(result);
+                        sendVerificationEmail(result, res)
+
+                        // res.json({
+                        //     status: "Success",
+                        //     message: "Signup successful!",
+                        //     data: result
+                        // })
                     }).catch(err => {
                         res.json({
                             status: "Failed",
@@ -136,6 +200,152 @@ router.post("/signup", (req, res) => {
     }
 })
 
+// Send verification email function
+const sendVerificationEmail = ({_id, email}, res) => {
+    console.log(_id)
+    console.log(email)
+    // url to be used
+    const currentURL = "http://localhost:4000/";
+    const uniqueString = uuidv4() + _id;
+
+    //mail options
+    const mailOption = {
+        from: process.env.AUTH_EMAIL,
+        to: email,
+        subject: "Verify your email!",
+        html: `<p>Verify your email address to complete the signup and login into your account.</p><p>This link will be expired in <b>6 hours</b>.</p><p>Press <a href=${currentURL + "api/users/verify/" + _id + "/" + uniqueString}>here</a> to proceed.</p>`
+    };
+
+    // Hash the unique string
+    const saltRounds = 10;
+    
+    bcrypt.hash(uniqueString, saltRounds)
+    .then((hashedString) => {
+        // Set values in the user verification collection
+        const newVerify = new UserVerification({
+            user_id: _id,
+            uniqueString: hashedString,
+            createdAt: Date.now(),
+            expireAt: Date.now() + 21600000,
+        })
+
+        // console.log(newVerify)
+        newVerify.save()
+        .then(() => {
+            transporter.sendMail(mailOption)
+            .then(() => {
+                // Email sent and verification record saved
+                res.json({
+                    status: "Pending",
+                    message: "Verificaiton email sent!"
+                })
+            })
+            .catch(err => {
+                console.log(err);
+                res.json({
+                    status: "Failed",
+                    message: "Error when send email!"
+                })
+            })
+        })
+        .catch(err => {
+            res.json({
+                status: "Failed",
+                message: "Error when saving verified data!"
+            })
+        })
+    })
+    .catch(err => {
+        res.json({
+            status: "Failed",
+            message: "Error when hashing email data!"
+        })
+    })
+}
+
+//Verify email
+router.get("/verify/:userId/:uniqueString", (req,res) => {
+    let {userId, uniqueString} = req.params;
+    
+    UserVerification.find({userId})
+    .then(result => {
+        console.log(result)
+        if(result.length > 0) {
+            //record exist then
+            let {expireAt} = result[0];
+
+            const hashedUniqueString = result[0].uniqueString;
+
+            // Check expire time
+            if(expireAt < Date.now()) {
+                // Record has expired
+                UserVerification.deleteOne({userId})
+                .then(result => {
+                    user.deleteOne({ _id: userId})
+                    .then(() => {
+                        let message = "Link has expired. Please sign up again!";
+                        res.redirect(`/api/users/verified/error=true&message=${message}`);
+                    })
+                    .catch(err => {
+                        let message = "Fail to clear user with unique string!";
+                        res.redirect(`/api/users/verified/error=true&message=${message}`);
+                    })
+                })
+                .catch(err => {
+                    let message = "Error when checking expire time of verification record!";
+                    res.redirect(`/api/users/verified/error=true&message=${message}`);
+                })
+            } else {
+                // validate user data
+                //First compare the hashed uniqueString
+                bcrypt.compare(uniqueString, hashedUniqueString)
+                .then((result) => {
+                    if(result) {
+                        //string match
+                        user.updateOne({_id: userId}, {email_verified: true})
+                        .then(() => {
+                            UserVerification.deleteOne({userId})
+                            .then(() => {
+                                res.sendFile(path.join(__dirname, "./../view/verified.html"));
+                            })
+                            .catch(err => {
+                                let message = "Error when deleting user record in verify collection!";
+                                res.redirect(`/api/users/verified/error=true&message=${message}`);
+                            })
+                        })
+                        .catch(err => {
+                            let message = "Error when updating user record!";
+                            res.redirect(`/api/users/verified/error=true&message=${message}`);
+                        })
+                    } else {
+                        //existing record but incorrect verification details passed.
+                        let message = "Invalid verification details. Please check your inbox!";
+                        res.redirect(`/api/users/verified/error=true&message=${message}`);
+                    }
+                })
+                .catch(err => {
+                    let message = "Error when compare unique string!";
+                    res.redirect(`/api/users/verified/error=true&message=${message}`);
+                })
+            }
+        } else {
+            //record does not exist
+            let message = "Account record does not exist or has been verified already. Please signup or login!";
+            res.redirect(`/api/users/verified/error=true&message=${message}`);
+        }
+    })
+    .catch(err => {
+        console.log("err");
+        let message = "Error when checking existing verification record!";
+        res.redirect(`/api/users/verified/error=true&message=${message}`);
+    })
+})
+
+//Verified page route
+router.get("/verified", (req, res) => {
+    res.sendFile(path.join(__dirname, "./../view/verified.html"));
+})
+
 //Sign in api
 router.post("/login", (req, res) => {
     let {email, password} = req.body;
@@ -151,26 +361,37 @@ router.post("/login", (req, res) => {
     } else {
         user.find({email}).then(data => {
             if (data) {
-                const hashedPassword = data[0].password;
-                bcrypt.compare(password, hashedPassword).then(result => {
-                    if (result) {
-                        res.json({
-                            status: "Success",
-                            message: "Signin succesful!",
-                            data: data
-                        })
-                    } else {
-                        res.json({
-                            status: "Failed",
-                            message: "Invalid password entered!"
-                        })
-                    }
-                }).catch(err => {
+                //Users exists
+
+                //Check if user is verified
+                if(!data[0].email_verified) {
                     res.json({
                         status: "Failed",
-                        message: "Error when login!"
+                        message: "The user is not verified yet!"
                     })
-                }) 
+                } else {
+                    const hashedPassword = data[0].password;
+                    bcrypt.compare(password, hashedPassword).then(result => {
+                        if (result) {
+                            res.json({
+                                status: "Success",
+                                message: "Signin succesful!",
+                                data: data
+                            })
+                        } else {
+                            res.json({
+                                status: "Failed",
+                                message: "Invalid password entered!"
+                            })
+                        }
+                    }).catch(err => {
+                        res.json({
+                            status: "Failed",
+                            message: "Error when login!"
+                        })
+                    }) 
+                }
+                
             } else {
                 res.json({
                     status:"Failed",
