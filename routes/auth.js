@@ -407,5 +407,22 @@ router.post("/login", (req, res) => {
     }
 })
 
+// find all users
+router.get("/getUsers", async (req, res) => {
+    const option = {
+        sort: {
+            createdAt: 1,
+        },
+    };
+
+    const data = await user.find(option);
+
+    if (data) {
+        return res.status(200).send({success: true, users: data});
+    } else {
+        return res.status(400).send({success: false, message: "Error when finding all users (not found)"});
+    }
+});
+
 //export the router
 module.exports = router
