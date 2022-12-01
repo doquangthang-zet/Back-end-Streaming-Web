@@ -161,7 +161,7 @@ router.post("/signup", (req, res) => {
                     const newUser = new user({
                         name: name,
                         email: email,
-                        imageURL: "../default_avatar.png",
+                        imageURL: "https://firebasestorage.googleapis.com/v0/b/muzikland-project-music-web.appspot.com/o/images%2Fdefault_avatar.png?alt=media&token=0cf392ca-aed2-423b-858c-ce31dbad13e3",
                         email_verified: false,
                         role: "member",
                         password: hashedPassword
@@ -423,6 +423,37 @@ router.get("/getUsers", async (req, res) => {
         return res.status(400).send({success: false, message: "Error when finding all users (not found)"});
     }
 });
+
+// Update users api
+router.put("/updateRole/:userId", async (req, res) => {
+    const filter = {_id: req.params.userId};
+    const role = req.body.data.role;
+    const option = {
+        sort: {
+            createdAt: 1,
+        },
+    };
+
+    try {
+        const result = await user.findOneAndUpdate(filter, {role: role}, option);
+        res.status(200).send({success: true, user: result});
+    } catch (error) {
+        res.status(400).send({success: false, message: "Error when updating users (not found)"});
+    }
+});
+
+//Delete an user
+router.delete("/delete/:id", async (req, res) => {
+    const filter = {_id: req.params.id};
+
+    const result = await user.deleteOne(filter);
+
+    if (result) {
+        return res.status(200).send({success: true, message: "Data deleted succesfully"});
+    } else {
+        return res.status(400).send({success: false, message: "Error when deleting an user (not found)"});
+    }
+})
 
 //export the router
 module.exports = router
