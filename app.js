@@ -37,4 +37,8 @@ app.use("/api/playlists/", playlistRoute);
 const songRoute = require("./routes/song"); 
 app.use("/api/songs/", songRoute);
 
+//Album route
+const albumRoute = require("./routes/album"); 
+app.use("/api/albums/", albumRoute);
+
 app.listen(PORT, () => console.log("Listening on port 4000"));

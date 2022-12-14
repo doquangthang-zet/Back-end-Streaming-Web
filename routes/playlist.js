@@ -23,6 +23,8 @@ router.post("/save", async (req, res) => {
     const newPlaylist = playlist({
         name: req.body.name,
         imageURL: req.body.imageURL,
+        description: req.body.description,
+        user_id: req.body.user_id,
     })
  
     try {
@@ -57,6 +59,8 @@ router.put("/update/:id", async (req, res) => {
         const result = await playlist.findOneAndUpdate(filter, {
             name: req.body.name,
             imageURL: req.body.imageURL,
+            description: req.body.description,
+            user_id: req.body.user_id,
         }, options);
 
         return res.status(200).send({success: true, data: result});
@@ -76,5 +80,17 @@ router.delete("/delete/:id", async (req, res) => {
         return res.status(400).send({success: false, message: "Error when deleting a playlist (not found)"});
     }
 })
+
+router.get("/getUserPlaylist/:user_id", async (req, res) => {
+    const filter = {user_id: req.params.user_id};
+
+    const data = await playlist.find(filter);
+
+    if (data) {
+        return res.status(200).send({success: true, playlists: data});
+    } else {
+        return res.status(400).send({success: false, message: "Error when finding some playlist (not found)"});
+    }
+});
 
 module.exports = router

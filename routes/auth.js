@@ -71,7 +71,7 @@ router.get("/login", async(req, res) => {
             }
         }
     } catch (err) { 
-        return res.status.json({message : err});
+        return res.status(400).json({message : err});
     }
 })
 
@@ -428,14 +428,9 @@ router.get("/getUsers", async (req, res) => {
 router.put("/updateRole/:userId", async (req, res) => {
     const filter = {_id: req.params.userId};
     const role = req.body.data.role;
-    const option = {
-        sort: {
-            createdAt: 1,
-        },
-    };
 
     try {
-        const result = await user.findOneAndUpdate(filter, {role: role}, option);
+        const result = await user.findOneAndUpdate(filter, {role: role});
         res.status(200).send({success: true, user: result});
     } catch (error) {
         res.status(400).send({success: false, message: "Error when updating users (not found)"});
