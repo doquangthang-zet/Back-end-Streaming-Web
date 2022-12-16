@@ -13,7 +13,11 @@ const songSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    playlist: {
+    // playlist: {
+    //     type: String,
+    //     required: false
+    // },
+    album: {
         type: String,
         required: false
     },

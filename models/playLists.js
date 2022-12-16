@@ -17,6 +17,12 @@ const playListSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    songs: [
+        {
+            type: String,
+            required: false,
+        }
+    ]
 },
 {timestamps: true}
 );

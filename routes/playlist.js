@@ -25,6 +25,7 @@ router.post("/save", async (req, res) => {
         imageURL: req.body.imageURL,
         description: req.body.description,
         user_id: req.body.user_id,
+        songs: req.body.songs,
     })
  
     try {
@@ -61,6 +62,7 @@ router.put("/update/:id", async (req, res) => {
             imageURL: req.body.imageURL,
             description: req.body.description,
             user_id: req.body.user_id,
+            songs: req.body.songs,
         }, options);
 
         return res.status(200).send({success: true, data: result});
