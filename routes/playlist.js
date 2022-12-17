@@ -95,4 +95,16 @@ router.get("/getUserPlaylist/:user_id", async (req, res) => {
     }
 });
 
+// Update songs in playlist
+router.put("/updateSongs/:playlistId/:songId", async (req, res) => {
+    const filter = {_id: req.params.playlistId};
+
+    try {
+        const result = await playlist.findOneAndUpdate(filter, {$push: { songs: req.params.songId } });
+        res.status(200).send({success: true, playlist: result});
+    } catch (error) {
+        res.status(400).send({success: false, message: "Error when updating playlist songs (not found)"});
+    }
+});
+
 module.exports = router

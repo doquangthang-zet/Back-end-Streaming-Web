@@ -84,7 +84,8 @@ const newUserData = async (decodeValue, req, res) => {
         user_id: decodeValue.uid,
         email_verified: decodeValue.email_verified,
         role: "member",
-        auth_time: decodeValue.auth_time
+        auth_time: decodeValue.auth_time,
+        likedSongs: [],
     })
 
     try {
@@ -164,7 +165,8 @@ router.post("/signup", (req, res) => {
                         imageURL: "https://firebasestorage.googleapis.com/v0/b/muzikland-project-music-web.appspot.com/o/images%2Fdefault_avatar.png?alt=media&token=0cf392ca-aed2-423b-858c-ce31dbad13e3",
                         email_verified: false,
                         role: "member",
-                        password: hashedPassword
+                        password: hashedPassword,
+                        likedSongs: [],
                     });
 
                     newUser.save().then(result => {
@@ -449,6 +451,18 @@ router.delete("/delete/:id", async (req, res) => {
         return res.status(400).send({success: false, message: "Error when deleting an user (not found)"});
     }
 })
+
+// Update liked songs
+router.put("/updateLikedSongs/:userId/:songId", async (req, res) => {
+    const filter = {_id: req.params.userId};
+
+    try {
+        const result = await user.findOneAndUpdate(filter, {$push: { likedSongs: req.params.songId } });
+        res.status(200).send({success: true, playlist: result});
+    } catch (error) {
+        res.status(400).send({success: false, message: "Error when updating liked songs (not found)"});
+    }
+});
 
 //export the router
 module.exports = router
