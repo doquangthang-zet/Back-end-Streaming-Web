@@ -107,4 +107,16 @@ router.put("/updateSongs/:playlistId/:songId", async (req, res) => {
     }
 });
 
+// Remove songs in playlist
+router.put("/removeSongs/:playlistId/:songId", async (req, res) => {
+    const filter = {_id: req.params.playlistId};
+
+    try {
+        const result = await playlist.findOneAndUpdate(filter, {$pull: { songs: req.params.songId } });
+        res.status(200).send({success: true, playlist: result});
+    } catch (error) {
+        res.status(400).send({success: false, message: "Error when updating playlist songs (not found)"});
+    }
+});
+
 module.exports = router

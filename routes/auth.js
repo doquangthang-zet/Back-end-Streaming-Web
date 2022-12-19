@@ -458,11 +458,36 @@ router.put("/updateLikedSongs/:userId/:songId", async (req, res) => {
 
     try {
         const result = await user.findOneAndUpdate(filter, {$push: { likedSongs: req.params.songId } });
-        res.status(200).send({success: true, playlist: result});
+        res.status(200).send({success: true, user: result});
     } catch (error) {
         res.status(400).send({success: false, message: "Error when updating liked songs (not found)"});
     }
 });
+
+// Update liked songs
+router.put("/removeLikedSongs/:userId/:songId", async (req, res) => {
+    const filter = {_id: req.params.userId};
+
+    try {
+        const result = await user.findOneAndUpdate(filter, {$pull: { likedSongs: req.params.songId } });
+        res.status(200).send({success: true, user: result});
+    } catch (error) {
+        res.status(400).send({success: false, message: "Error when updating liked songs (not found)"});
+    }
+}); 
+
+// Get one user
+router.get("/getOne/:id", async (req, res) => {
+    const filter = {_id: req.params.id};
+
+    const data = await user.findOne(filter);
+
+    if (data) {
+        return res.status(200).send({success: true, user: data});
+    } else {
+        return res.status(400).send({success: false, message: "Error when finding a user (not found)"});
+    }
+});  
 
 //export the router
 module.exports = router
