@@ -24,7 +24,7 @@ router.post("/save", async (req, res) => {
         name: req.body.name,
         imageURL: req.body.imageURL,
         songURL: req.body.songURL,
-        // playlist: req.body.playlist,
+        likes: 0,
         album: req.body.album,
         artist: req.body.artist,
         language: req.body.language,
@@ -64,7 +64,7 @@ router.put("/update/:id", async (req, res) => {
             name: req.body.name,
             imageURL: req.body.imageURL,
             songURL: req.body.songURL,
-            // playlist: req.body.playlist,
+            likes: req.body.likes,
             album: req.body.album,
             artist: req.body.artist,
             language: req.body.language,
@@ -88,5 +88,45 @@ router.delete("/delete/:id", async (req, res) => {
         return res.status(400).send({success: false, message: "Error when deleting a song (not found)"});
     }
 })
+
+// Update likes in a song
+router.put("/gainLike/:songId", async (req, res) => {
+    const filter = {_id: req.params.songId};
+
+    try {
+        const result = await song.findOneAndUpdate(filter, {$inc: {likes: 1}});
+        res.status(200).send({success: true, song: result});
+    } catch (error) {
+        res.status(400).send({success: false, message: "Error when updating likes songs (not found)"});
+    }
+});
+
+// Update likes in a song
+router.put("/decreaseLike/:songId", async (req, res) => {
+    const filter = {_id: req.params.songId};
+
+    try {
+        const result = await song.findOneAndUpdate(filter, {$inc: {likes: -1}});
+        res.status(200).send({success: true, song: result});
+    } catch (error) {
+        res.status(400).send({success: false, message: "Error when updating likes songs (not found)"});
+    }
+});
+
+// Get all song in chart order
+router.get("/getChart", async (req, res) => {
+    const option = {
+        likes: -1,
+        _id: 1,
+    };
+
+    const data = await song.find().sort(option);
+
+    if (data) {
+        return res.status(200).send({success: true, song: data});
+    } else {
+        return res.status(400).send({success: false, message: "Error when finding all songs chart (not found)"});
+    }
+});
 
 module.exports = router

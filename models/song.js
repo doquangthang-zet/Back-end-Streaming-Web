@@ -13,10 +13,10 @@ const songSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    // playlist: {
-    //     type: String,
-    //     required: false
-    // },
+    likes: {
+        type: Number,
+        required: false
+    },
     album: {
         type: String,
         required: false
@@ -31,7 +31,7 @@ const songSchema = mongoose.Schema({
     },
     category: {
         type: String,
-        required: true
+        required: true 
     },
 },
 {timestamps: true}
