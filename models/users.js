@@ -24,7 +24,7 @@ const UserSchema = mongoose.Schema({
     role: {
         type: String,
         required: false
-    },
+    }, 
     auth_time: {
         type: String,
         required: false

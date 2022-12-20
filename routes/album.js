@@ -23,6 +23,8 @@ router.post("/save", async (req, res) => {
     const newAlbum = album({
         name: req.body.name,
         imageURL: req.body.imageURL,
+        songs: req.body.songs,
+        category: req.body.category,
     })
  
     try {
@@ -57,6 +59,8 @@ router.put("/update/:id", async (req, res) => {
         const result = await album.findOneAndUpdate(filter, {
             name: req.body.name,
             imageURL: req.body.imageURL,
+            songs: req.body.songs,
+            category: req.body.category,
         }, options);
 
         return res.status(200).send({success: true, data: result});
