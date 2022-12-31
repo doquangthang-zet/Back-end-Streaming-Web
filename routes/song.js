@@ -116,8 +116,8 @@ router.put("/decreaseLike/:songId", async (req, res) => {
 // Get all song in chart order
 router.get("/getChart", async (req, res) => {
     const option = {
-        _id: 1,
         likes: -1,
+        _id: 1,
     };
 
     const data = await song.find().sort(option);
