@@ -11,6 +11,7 @@ const router = require("express").Router();
 //Our song model
 const song = require("./../models/song");
 
+//API to get all the songs in database
 router.get("/getAll", async (req, res) => {
     const option = {
         sort: {
@@ -27,6 +28,7 @@ router.get("/getAll", async (req, res) => {
     }
 });
 
+//API to save new song in database
 router.post("/save", async (req, res) => {
     const newSong = song({
         name: req.body.name,
@@ -47,6 +49,7 @@ router.post("/save", async (req, res) => {
     }
 });
 
+//API to get the song in database
 router.get("/getOne/:id", async (req, res) => {
     const filter = {_id: req.params.id};
 
@@ -59,6 +62,7 @@ router.get("/getOne/:id", async (req, res) => {
     }
 });
 
+//API to update the song in database
 router.put("/update/:id", async (req, res) => {
     const filter = {_id: req.params.id};
 
@@ -85,6 +89,7 @@ router.put("/update/:id", async (req, res) => {
     }
 });
 
+//API to delete the song in database
 router.delete("/delete/:id", async (req, res) => {
     const filter = {_id: req.params.id};
 

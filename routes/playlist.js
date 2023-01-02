@@ -11,6 +11,8 @@ const router = require("express").Router();
 //Our playlist model
 const playlist = require("./../models/playLists");
 
+
+//API to get all the playlist in database
 router.get("/getAll", async (req, res) => {
     const option = {
         sort: {
@@ -27,6 +29,8 @@ router.get("/getAll", async (req, res) => {
     }
 });
 
+
+//API to save new playlist in database
 router.post("/save", async (req, res) => {
     const newPlaylist = playlist({
         name: req.body.name,
@@ -44,6 +48,7 @@ router.post("/save", async (req, res) => {
     }
 });
 
+//API to get the album in database
 router.get("/getOne/:id", async (req, res) => {
     const filter = {_id: req.params.id};
 
@@ -56,6 +61,7 @@ router.get("/getOne/:id", async (req, res) => {
     }
 });
 
+//API to update the album in database
 router.put("/update/:id", async (req, res) => {
     const filter = {_id: req.params.id};
 
@@ -79,6 +85,7 @@ router.put("/update/:id", async (req, res) => {
     }
 });
 
+//API to delete the album in database
 router.delete("/delete/:id", async (req, res) => {
     const filter = {_id: req.params.id};
 
@@ -91,6 +98,7 @@ router.delete("/delete/:id", async (req, res) => {
     }
 })
 
+//API to get all the playlist of a user in database
 router.get("/getUserPlaylist/:user_id", async (req, res) => {
     const filter = {user_id: req.params.user_id};
 

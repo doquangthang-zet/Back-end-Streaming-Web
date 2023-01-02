@@ -11,6 +11,8 @@ const router = require("express").Router();
 //Our album model
 const album = require("./../models/albums");
 
+
+//API to get all the album in database
 router.get("/getAll", async (req, res) => {
     const option = {
         sort: {
@@ -27,6 +29,7 @@ router.get("/getAll", async (req, res) => {
     }
 });
 
+//API to save the album in database
 router.post("/save", async (req, res) => {
     const newAlbum = album({
         name: req.body.name,
@@ -43,6 +46,7 @@ router.post("/save", async (req, res) => {
     }
 });
 
+//API to get one album in database
 router.get("/getOne/:id", async (req, res) => {
     const filter = {_id: req.params.id};
 
@@ -55,6 +59,7 @@ router.get("/getOne/:id", async (req, res) => {
     }
 });
 
+//API to updata one album in database
 router.put("/update/:id", async (req, res) => {
     const filter = {_id: req.params.id};
 
@@ -77,6 +82,7 @@ router.put("/update/:id", async (req, res) => {
     }
 });
 
+//API to delete the album in database
 router.delete("/delete/:id", async (req, res) => {
     const filter = {_id: req.params.id};
 
