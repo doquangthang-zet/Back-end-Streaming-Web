@@ -1,50 +1,31 @@
 /*************************************************************** 
-*Title: Users
-*Author: Thang Do
+*Title: artists
+*Author: Luy Nguyen, Thang Do
 *Date: 20 Dec 2022
 *Code version: V1 
 *Availability: https://github.com/doquangthang-zet/Front-end-Streaming-Web/tree/main/muzikland 
 ****************************************************************/ 
 const mongoose = require("mongoose");
 
-const UserSchema = mongoose.Schema({
+const artistSchema = mongoose.Schema({
     name: {
-        type: String,
-        required: true
-    },
-    email: {
         type: String,
         required: true
     },
     imageURL: {
         type: String,
-        required: false
+        required: true
     },
-    user_id: {
+    twitter: {
         type: String,
         required: false
     },
-    email_verified: {
-        type: Boolean,
-        required: false
-    },
-    role: {
-        type: String,
-        required: false
-    }, 
-    auth_time: {
+    instagram: {
         type: String,
         required: false
     },
-    password: String,
-    likedSongs: [
-        {
-            type: String,
-            required: false,
-        }
-    ],
 },
 {timestamps: true}
-)
+);
 
-module.exports = mongoose.model("users", UserSchema);
+module.exports = mongoose.model("artist", artistSchema);
