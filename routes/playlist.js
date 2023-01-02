@@ -1,3 +1,11 @@
+/*************************************************************** 
+*Title: Main app.js file for back-end
+*Author: Thang Do
+*Date: 30 December 2022
+* Code version: V1 
+*Availability: https://github.com/doquangthang-zet/Back-end-Streaming-Web (Accessed 2 January 2022) 
+****************************************************************/ 
+
 const router = require("express").Router();
 
 //Our playlist model
