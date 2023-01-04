@@ -33,10 +33,6 @@ app.get("/", (req, res) => {
 const userRoute = require("./routes/auth");
 app.use("/api/users/", userRoute);
 
-//Artist route
-const artistRoute = require("./routes/artist");
-app.use("/api/artists/", artistRoute);
-
 //Plylist route
 const playlistRoute = require("./routes/playlist");
 app.use("/api/playlists/", playlistRoute);

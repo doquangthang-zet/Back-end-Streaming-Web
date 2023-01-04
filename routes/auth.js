@@ -32,7 +32,7 @@ const path = require("path");
 // Regex
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 const passwordTest = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})");
-const usernameRegex = /^[A-Za-z0-9._-\s]{8,16}$/
+const usernameRegex = /^[A-Za-z0-9._-\s]{3,16}$/
 
 //Password handler
 const bcrypt = require("bcrypt");
@@ -142,7 +142,7 @@ router.post("/signup", (req, res) => {
     } else if (!usernameRegex.test(name)) {
         res.json({
             status: "Failed",
-            message: "Invalid input username!"
+            message: "Invalid input username! Username must be from 3-16 characters."
         })
     } else if (!emailRegex.test(email)) {
         res.json({
@@ -152,7 +152,7 @@ router.post("/signup", (req, res) => {
     } else if (!passwordTest.test(password)) {
         res.json({
             status: "Failed",
-            message: "Invalid password!"
+            message: "Invalid password! Password must contain at least 1 number, 1 uppercase letter, 1 lowercase letter, 1 special character, and more than 8 character length."
         })
     } else { 
         user.find({email}).then(result => {
